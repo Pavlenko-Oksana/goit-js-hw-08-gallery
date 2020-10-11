@@ -1,3 +1,4 @@
+import photos from "./gallery-items.js";
 export default [
   {
     preview:
@@ -63,3 +64,73 @@ export default [
     description: "Lighthouse Coast Sea",
   },
 ];
+
+const galleryContainer = document.querySelector(".js-gallery");
+const galleryCard = createGalleryCard(photos);
+
+galleryContainer.insertAdjacentHTML("beforeend", galleryCard);
+
+function createGalleryCard(photos) {
+  return photos
+    .map(({ preview, original, description }) => {
+      return `<li class="gallery__item">
+  <a
+    class="gallery__link"
+    href="${original}"
+  >
+    <img
+      class="gallery__image"
+      src="${preview}"
+      data-source="${original}"
+      alt="${description}"
+    />
+  </a>
+</li>`;
+    })
+    .join("");
+}
+
+galleryContainer.addEventListener("click", onClickGalleryCard);
+const lightBox = document.querySelector(".lightbox");
+const lightBoxContent = document.querySelector(".lightbox__content");
+const bigPhoto = document.querySelector(".lightbox__image");
+const closeButton = document.querySelector("[data-action= close-lightbox]");
+
+closeButton.addEventListener("click", onCloseModal);
+lightBoxContent.addEventListener("click", onClickBackdrop);
+
+function onClickGalleryCard(evt) {
+  evt.preventDefault();
+  if (evt.target.nodeName !== "IMG") {
+    return;
+  }
+
+  addClassIsOpen(evt);
+}
+
+function addClassIsOpen(evt) {
+  lightBox.classList.add("is-open");
+  const linkBigPhoto = evt.target.dataset.source;
+  bigPhoto.src = linkBigPhoto;
+  bigPhoto.alt = evt.target.alt;
+}
+
+function onCloseModal(evt) {
+  if (evt.target.nodeName === "BUTTON") {
+    lightBox.classList.remove("is-open");
+  }
+
+  removeAttribute(evt);
+}
+
+function removeAttribute(evt) {
+  bigPhoto.removeAttribute("src");
+  bigPhoto.removeAttribute("alt");
+}
+
+function onClickBackdrop(evt) {
+  if (evt.currentTarget === evt.target) {
+    lightBox.classList.remove("is-open");
+    removeAttribute(evt);
+  }
+}
